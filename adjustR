@@ -1,0 +1,39 @@
+df  <- mtcars[ , c(6, 1, 3, 5, 4)]
+q  <- 0 #счетчик
+res  <- c() #вектор из значений adj.r.squared
+names  <- c() #имена факторов, из которых складывается формула
+for(i in 2:ncol(df)){
+  q  <- q + 1 #счетчик включается каждый раз, когда строится модель
+  fit  <- lm(wt ~ df[ ,i], df)
+  names  <- c(names, q, colnames(df[i])) #не знала, как подобраться к формуле в summary(fit) :/
+  res  <- c(res, summary(fit)$adj.r.squared) #сохранение результата в вектор
+  print(i) #тесты
+  print(fit)
+  #дальше идут аналогичные действия
+  #цикл состоит из трех кругов. посредством сравнения i, j, k вычеркиваются повторяющиеся элементы
+  #к тому же не учитываются все четыре набора (он был бы в единственном экземпляре и его легче было сразу проверить)
+  for(j in 2:ncol(df)){
+    print("continue")
+    if(i < j){
+      q  <- q + 1
+      fit  <- lm(wt ~ df[ ,i] + df[ , j], df)
+      names  <- c(names, q, c(colnames(df[i]), colnames(df[j])))
+      res  <- c(res, summary(fit)$adj.r.squared)
+      
+      for(k in 2:ncol(df)){
+        if(j < k){
+          q  <- q + 1
+          fit  <- lm(wt ~ df[ ,i] + df[ , j] + df[ ,k], df)
+          names  <- c(names, q, c(colnames(df[i]), colnames(df[j]), colnames(df[k])))
+          res  <- c(res, summary(fit)$adj.r.squared)
+        }
+      }
+    }
+  }
+}
+res
+q
+which.max(res) #тут показывается номер сочетания, который потом легко найти в names
+names
+fit  <- lm(wt ~ mpg + disp + drat + hp, df)
+step(fit)
